@@ -1,0 +1,12 @@
+# Cache
+/__pycache__
+/app/__pycache__
+/migrations/__pycache__
+
+/env
+/.vscode
+
+app/other.py
+
+app.db
+config.py
