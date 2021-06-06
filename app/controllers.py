@@ -164,9 +164,8 @@ def push_tasks_info():
 
 		tasks = request.json
 		print("tasks: ", json.dumps(tasks, ensure_ascii=False))
-		tasks_data = tasks['tasks_data']
 
-		for task in tasks_data:
+		for task in tasks['tasks_data']:
 			
 			t = Task(
 				task=task['task_text'],

@@ -41,7 +41,7 @@ class Task(db.Model):
 	id = db.Column(db.Integer(), primary_key=True)
 	task = db.Column(db.String(100), nullable=False)
 	is_done = db.Column(db.Boolean(), default=False, nullable=False)
-	deadline = db.Column(db.DateTime())  # TODO: Доделать дату дедлайна задачи
+	deadline = db.Column(db.DateTime())
 
 	team_id = db.Column(db.Integer(), db.ForeignKey('Teams.id'))
 
@@ -50,25 +50,6 @@ class Task(db.Model):
 	def __repr__(self) -> str:
 		return f'<object Tasks(\n\tid: {self.id},\n\ttask : {self.task},\n\tis_done: {self.is_done},\n\tdeadline: {self.deadline}\n\n\tteam_id: {self.team_id}\n)>'
 
-
-'''
-	class TaskUser(db.Model):
-		"""
-			Является промежуточной таблицей между Users и Tasks.
-			Обеспечивает связь Многие ко многим (М:М)
-		"""
-		__tablename__ = 'TaskUsers'
-
-		id = db.Column(db.Integer(), primary_key=True)  # Нужно, чтобы sqlalchemy воспринимал
-
-		# Связь с <Task>
-		task_id = db.Column(db.Integer(), db.ForeignKey('Tasks.id'))
-		# Связь с <User>
-		user_id = db.Column(db.Integer(), db.ForeignKey('Users.id'))
-
-		def __repr__(self) -> str:
-			return f'<object TaskUsers(id: {self.id}, task_id: {self.task_id}, user_id: {self.user_id})>'
-'''
 
 class Team(db.Model):
 	__tablename__ = 'Teams'
@@ -84,7 +65,7 @@ class RolePermission(db.Model):
 	__tablename__ = 'RolePermissions'
 
 	id = db.Column(db.Integer(), primary_key=True)
-	name = db.Column(db.String(50), nullable=False)  #?
+	name = db.Column(db.String(50), nullable=False)
 	create_tasks = db.Column(db.Boolean(), default=False, nullable=False)
 	join_tasks = db.Column(db.Boolean(), default=False, nullable=False)
 	inviting = db.Column(db.Boolean(), default=False, nullable=False)

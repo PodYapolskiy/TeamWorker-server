@@ -64,8 +64,8 @@ manager.add_command('db', MigrateCommand)
 
 
 from . import controllers
+db.create_all()  # Создаёт файл базы данных с таблицами, если его нет
 from .models import User, Task, Team, RolePermission
-#from .models import User, Task, TaskUser, Team, RolePermission
 
 
 if __name__ == '__main__':
