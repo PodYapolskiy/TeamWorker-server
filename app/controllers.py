@@ -24,7 +24,7 @@ def index():
 
 		return make_response('Capitan rp', 201)
 
-	return make_response('dima pidor', 200)
+	return make_response('index', 200)
 
 
 @app.route("/register", methods=["POST", "GET"])
@@ -199,10 +199,11 @@ def get_tasks_info():
 		tasks_data: list = []  # Список словарей
 
 		for task in tasks:
-			print("task_users: ", task.users)
+			# print("task_users: ", task.users)
 			
 			task_dict = {}
 
+			task_dict["task_id"] = task.id
 			task_dict["task_text"] = task.task
 			task_dict["task_user_logins"] = [user.login for user in task.users]
 			task_dict["task_user_names"] = [user.name for user in task.users]
@@ -211,7 +212,7 @@ def get_tasks_info():
 
 			tasks_data.append(task_dict)
 
-		return jsonify({'tasks_data': tasks_data})
+		return jsonify(tasks_data)
 		
 	return make_response('get_tasks_info', 200)
 
@@ -260,6 +261,28 @@ def get_team_name():
 		return jsonify({'team_name': team.name})
 
 	return make_response('get_team_name', 200)
+
+
+@app.route('/change_task_state', methods=["POST", "GET"])
+def change_task_state():
+
+	if request.method == "POST":
+		task_id = request.json['task_id']
+
+		task = Task.query.filter_by(id=task_id).first()
+		
+		if not task:
+			return make_response('Задача не найдена', 404)
+		
+		# Меняет булевое значение на противоположное
+		task.is_done = False if task.is_done else True
+
+		db.session.add(task)
+		db.session.commit()
+
+		return make_response(f'Состояние задачи {task.id} успешно изменено.', 202)
+
+	return make_response('change_task_state', 200)
 
 
 @app.route("/drop_all", methods=["POST", "GET"])
