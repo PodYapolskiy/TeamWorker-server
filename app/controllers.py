@@ -5,6 +5,7 @@ from flask import make_response, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import json
+from datetime import datetime
 
 
 @app.route('/')
@@ -143,41 +144,6 @@ def is_login_unique():
 	return make_response('is-login-unique', 200)
 
 
-@app.route('/push_tasks_info', methods=["POST", "GET"])  #!!!
-def push_tasks_info():
-
-	from datetime import datetime
-	
-	if request.method == "POST":
-
-		'''
-			...
-				{
-					"task_text":f"Сосать бибу {i}",
-					"task_users_login":["huesos1login","huesos2login"],
-					"task_users":["хуесос 1", "Хуесос 2"],
-					"task_deadline":"21 апреля, 2021",
-					"task_is_done":0
-				}
-			...
-		'''
-
-		tasks = request.json
-		print("tasks: ", json.dumps(tasks, ensure_ascii=False))
-
-		for task in tasks['tasks_data']:
-			
-			t = Task(
-				task=task['task_text'],
-				is_done='task_is_done',
-				deadline=...
-			)
-			db.session.add(t)
-			db.session.flush()
-
-	return make_response('push_tasks_info', 200)
-
-
 @app.route('/get_tasks_info', methods=["POST", "GET"])
 def get_tasks_info():
 	
@@ -233,13 +199,15 @@ def get_team_users():
 
 		data = {
 			'user_logins': [],
-			'user_names': []
+			'user_names': [],
+			'user_roles': []
 		}
 
 		for user in users:
-
 			data['user_logins'].append(user.login)
 			data['user_names'].append(user.name)
+			data['user_roles'].append(user.role)
+
 
 		return jsonify(data)
 	
@@ -261,6 +229,59 @@ def get_team_name():
 		return jsonify({'team_name': team.name})
 
 	return make_response('get_team_name', 200)
+
+
+@app.route('/push_task_info', methods=["POST", "GET"])
+def push_task_info():
+	
+	if request.method == "POST":
+		'''
+			{
+				"task_text":        str,
+				"task_users_login": List[str],
+				"task_deadline":    str,
+				"task_is_done":     bool
+			}
+		'''
+		task = request.json
+		print("task:\n", json.dumps(task, indent=4, ensure_ascii=False))
+
+		if len(task['task_users_login']) == 0:
+			return make_response("Нет прекреплённых к задаче пользователей", 406)
+
+		# Добавляем пользователей по логинам и команду, к которой они принадлежат
+		team = None
+		users = []
+		for user_login in task['task_users_login']:
+			user = User.query.filter_by(login=user_login).first()
+			users.append(user)
+
+			if not team:
+				team = Team.query.filter_by(id=user.team_id).first()
+
+		date, time = str(task['task_deadline']).split(" ")
+
+		year, day, month = list(map(int, str(date).split(".")))
+		hours, minutes = list(map(int, str(time).split(":")))
+
+		t = Task(
+			task=task['task_text'],
+			is_done=task['task_is_done'],
+			deadline=datetime(year, month, day, hours, minutes),
+
+			team_id=team.id
+		)
+		print(t)
+
+		for user in users:
+			t.users.append(user)
+
+		db.session.add(t)
+		db.session.commit()
+
+		return make_response(f'Задача "{t.task}" успешно создана!', 201)
+
+	return make_response('push_task_info', 200)
 
 
 @app.route('/change_task_state', methods=["POST", "GET"])
