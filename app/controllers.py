@@ -306,6 +306,26 @@ def change_task_state():
 	return make_response('change_task_state', 200)
 
 
+@app.route('/remove_task', methods=["POST", "GET"])
+def remove_task():
+
+	if request.method == "POST":
+		task_id = request.json['task_id']
+
+		task = Task.query.filter_by(id=task_id).first()
+		print(task)
+
+		if not task:
+			return make_response('Задача не найдена.', 404)
+		
+		db.session.delete(task)
+		db.session.commit()
+
+		return make_response('Задача успешно удалена.', 202)
+
+	return make_response('remove_task', 200)
+
+
 @app.route("/drop_all", methods=["POST", "GET"])
 def drop_all():
 	""" Нужна лишь для ускорения разработки """
