@@ -284,6 +284,65 @@ def push_task_info():
 	return make_response('push_task_info', 200)
 
 
+@app.route('/edit_task_info', methods=["POST", "GET"])
+def edit_task_info():
+	
+	if request.method == "POST":
+		'''
+			{
+				"task_id":          int
+				"task_text":        str | None,
+				"task_users_login": List[str] | None,
+				"task_deadline":    str | None
+			}
+		'''
+		changes: dict = request.json
+		print("changes:\n", json.dumps(changes, indent=4, ensure_ascii=False))
+
+		task = Task.query.filter_by(id=changes['task_id']).first()
+		if not task:
+			return make_response("Задача не найдена.", 404)
+
+		if changes['task_text']:
+			task.task = changes['task_text']
+		
+		if changes['task_users_login']:
+			# Список всех участников команды
+			users = User.query.filter_by(team_id=task.team_id).all()
+
+			# Список исполнителей при изменении задачи
+			amends = []
+			for user_login in changes['task_users_login']:
+				user = User.query.filter_by(login=user_login).first()
+				amends.append(user)
+			
+			# Перезаписываем изменения
+			for user in users:
+				if (user in task.users) and (user in amends):
+					continue
+
+				elif (user in task.users):
+					task.users.remove(user)
+	
+				elif (user in amends):
+					task.users.append(user)
+
+		if changes['task_deadline']:
+			print("task_deadline: ", changes['task_deadline'])
+			date, time = str(changes['task_deadline']).split(" ")
+			year, day, month = list(map(int, str(date).split(".")))
+			hours, minutes = list(map(int, str(time).split(":")))
+
+			task.deadline = datetime(year, month, day, hours, minutes)
+
+		db.session.add(task)
+		db.session.commit()
+
+		return make_response(f'Задача "{task.task}" успешно обновлена!', 201)
+
+	return make_response('edit_task_info', 200)
+
+
 @app.route('/change_task_state', methods=["POST", "GET"])
 def change_task_state():
 
