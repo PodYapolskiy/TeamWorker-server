@@ -261,7 +261,7 @@ def push_task_info():
 
 		date, time = str(task['task_deadline']).split(" ")
 
-		year, day, month = list(map(int, str(date).split(".")))
+		day, month, year = list(map(int, str(date).split(".")))
 		hours, minutes = list(map(int, str(time).split(":")))
 
 		t = Task(
@@ -330,7 +330,7 @@ def edit_task_info():
 		if changes['task_deadline']:
 			print("task_deadline: ", changes['task_deadline'])
 			date, time = str(changes['task_deadline']).split(" ")
-			year, day, month = list(map(int, str(date).split(".")))
+			day, month, year = list(map(int, str(date).split(".")))
 			hours, minutes = list(map(int, str(time).split(":")))
 
 			task.deadline = datetime(year, month, day, hours, minutes)
