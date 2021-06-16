@@ -148,7 +148,7 @@ def is_login_unique():
 def get_tasks_info():
 	
 	if request.method == "POST":
-		account_login = request.json['account_login']
+		account_login = request.json['login']
 		print("account_login", account_login)
 		
 		user = User.query.filter_by(login=account_login).first()
@@ -188,7 +188,7 @@ def get_team_users():
 
 	if request.method == "POST":
 
-		account_login = request.json['account_login']
+		account_login = request.json['login']
 
 		user = User.query.filter_by(login=account_login).first()
 
@@ -219,7 +219,7 @@ def get_team_name():
 	
 	if request.method == "POST":
 		
-		account_login = request.json['account_login']
+		account_login = request.json['login']
 		user = User.query.filter_by(login=account_login).first()
 		if not user:
 			return make_response('Пользователь не найден', 404)
