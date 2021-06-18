@@ -231,6 +231,31 @@ def get_team_name():
 	return make_response('get_team_name', 200)
 
 
+@app.route('/get_user_role_permissions', methods=["POST", "GET"])
+def get_user_role_permissions():
+	
+	if request.method == "POST":
+		
+		account_login = request.json['login']
+		user = User.query.filter_by(login=account_login).first()
+		if not user:
+			return make_response('Пользователь не найден', 404)
+
+		role = RolePermission.query.filter_by(id=user.role_id).first()
+		if not role:
+			return make_response('Роль не найдена', 404)
+
+		data = {
+			'create_tasks': role.create_tasks,
+			'join_tasks': role.join_tasks,
+			'inviting': role.inviting
+		}
+		
+		return jsonify(data)
+
+	return make_response('get_user_role_permissions', 200)
+
+
 @app.route('/push_task_info', methods=["POST", "GET"])
 def push_task_info():
 	
