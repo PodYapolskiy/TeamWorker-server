@@ -214,8 +214,8 @@ def get_team_users():
 	return make_response("get_team_users", 200)
 
 
-@app.route('/get_team_name', methods=["POST", "GET"])
-def get_team_name():
+@app.route('/get_team_and_user_name', methods=["POST", "GET"])
+def get_team_and_user_name():
 	
 	if request.method == "POST":
 		
@@ -226,9 +226,14 @@ def get_team_name():
 
 		team = Team.query.filter_by(id=user.team_id).first()
 
-		return jsonify({'team_name': team.name})
+		data = {
+			'team_name': team.name,
+			'user_name': user.name
+		}
 
-	return make_response('get_team_name', 200)
+		return jsonify(data)
+
+	return make_response('get_team_and_user_name', 200)
 
 
 @app.route('/get_user_role_permissions', methods=["POST", "GET"])
